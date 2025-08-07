@@ -1,7 +1,12 @@
 package app
 
 import (
+	dbConfig "AuthInGo/config/db"
 	config "AuthInGo/config/env"
+	"AuthInGo/controller"
+	db "AuthInGo/db/repo"
+	"AuthInGo/router"
+	"AuthInGo/service"
 	"fmt"
 	"net/http"
 	"time"
@@ -13,6 +18,7 @@ type Config struct {
 
 type Application struct {
 	Config Config
+	Store  db.Storage
 }
 
 func NewConifg() Config {
@@ -26,13 +32,28 @@ func NewConifg() Config {
 func NewApplication(cfg Config) *Application {
 	return &Application{
 		Config: cfg,
+		Store:  *db.NewStore(),
 	}
 }
 
 func (app *Application) Run() error {
+
+	dbConf, err := dbConfig.SetupDb()
+
+	if err != nil {
+		fmt.Println("error connecting to db", err)
+		return nil
+	}
+
+	ur := db.NewUserRepo(dbConf)
+	us := service.NewUserService(ur)
+	uc := controller.NewUserController(us)
+
+	uRouter := router.NewUserRouter(uc)
+
 	server := http.Server{
 		Addr:         app.Config.Addr,
-		Handler:      nil, // setup and add chi router here .
+		Handler:      router.SetupRouter(uRouter),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

@@ -3,11 +3,12 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
-func load() {
+func Load() {
 	err := godotenv.Load()
 
 	if err != nil {
@@ -17,8 +18,6 @@ func load() {
 }
 
 func GetString(key string, fallBack string) string {
-	load()
-
 	value, ok := os.LookupEnv(key)
 
 	if !ok {
@@ -26,4 +25,21 @@ func GetString(key string, fallBack string) string {
 	}
 
 	return value
+}
+
+func GetInt(key string, fallBack int) int {
+	value, ok := os.LookupEnv(key)
+
+	if !ok {
+		return fallBack
+	}
+
+	intVal, err := strconv.Atoi(value)
+
+	if err != nil {
+		fmt.Println("failed to convert to int")
+		return fallBack
+	}
+
+	return intVal
 }
