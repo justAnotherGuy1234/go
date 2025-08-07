@@ -8,7 +8,7 @@ import (
 
 // created interface to avoid tight copling of service and repo layer
 type UserRepo interface {
-	Create() error
+	Create(username string, email string, password string) error
 	GetUserById() error
 	//GetAllUser() error -- todo
 	//DeleteUserById() error -- todo
@@ -25,12 +25,13 @@ func NewUserRepo(db *sql.DB) UserRepo {
 	}
 }
 
-func (u *UserRepoImpl) Create() error {
+func (u *UserRepoImpl) Create(username string, email string, password string) error {
 	fmt.Println("create in repo")
 
-	query := "INSERT INTO user (username, email, password) VALUES (?, ?, ?)"
+	query := "INSERT INTO Users (username, email, password) VALUES (?, ?, ?)"
 
-	result, err := u.db.Exec(query, "test1", "test1@gmail.com", "test1")
+	result, err := u.db.Exec(query, username, email, password)
+
 	if err != nil {
 		fmt.Println("error executing insert:", err)
 		return err
@@ -54,7 +55,7 @@ func (u *UserRepoImpl) Create() error {
 func (u *UserRepoImpl) GetUserById() error {
 	fmt.Println("fetching user by id")
 
-	query := "SELECT id , username , email , password FROM user WHERE Id = ?"
+	query := "SELECT id , username , email , password FROM Users WHERE Id = ?"
 
 	row := u.db.QueryRow(query, 1)
 

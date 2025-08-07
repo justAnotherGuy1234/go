@@ -24,6 +24,8 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 func (uc *UserController) GetUserByIdService(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("fetching user detaild in controller")
 
+	uc.UserService.LoginUser()
 	uc.UserService.GetUserByIdService()
 	w.Write([]byte("fetching user endpont"))
+
 }
