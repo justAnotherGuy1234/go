@@ -3,6 +3,7 @@ package service
 import (
 	env "AuthInGo/config/env"
 	db "AuthInGo/db/repo"
+	"AuthInGo/dto"
 	"AuthInGo/util"
 	"fmt"
 
@@ -11,8 +12,8 @@ import (
 
 type UserService interface {
 	GetUserByIdService() error
-	CreateUser() error
-	LoginUser() error
+	CreateUser(userData *dto.SignUpUserDto) error
+	LoginUser() any
 }
 
 type UserServiceImpl struct {
@@ -25,16 +26,15 @@ func NewUserService(_userRepo db.UserRepo) UserService {
 	}
 }
 
-func (u *UserServiceImpl) CreateUser() error {
+func (u *UserServiceImpl) CreateUser(userData *dto.SignUpUserDto) error {
 
-	password := "test2"
-	hashed, err := util.HashPassword(password)
+	hashed, err := util.HashPassword(userData.Password)
 
 	if err != nil {
 		fmt.Println("error hashing password", err)
 	}
 
-	u.userRepo.Create("test2", "test2@gmail.com", hashed)
+	u.userRepo.Create(userData.Username, userData.Email, hashed)
 
 	return nil
 }
@@ -50,7 +50,7 @@ func (u *UserServiceImpl) GetUserByIdService() error {
 	return nil
 }
 
-func (u *UserServiceImpl) LoginUser() error {
+func (u *UserServiceImpl) LoginUser() any {
 	// create login func in repo which expects email and password
 
 	payload := jwt.MapClaims{
@@ -66,5 +66,5 @@ func (u *UserServiceImpl) LoginUser() error {
 	}
 
 	fmt.Println("token", tokenString)
-	return nil
+	return tokenString
 }
